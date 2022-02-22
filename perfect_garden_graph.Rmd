@@ -1,6 +1,6 @@
 ---
-title: "Title"
-author: "Put your name here!"
+title: "Perfect Garden Graph"
+author: "Seth Buesing"
 output: 
   html_document:
     toc: true
@@ -18,6 +18,7 @@ library(tidyverse)         # for graphing and data cleaning
 library(ggthemes)
 library(lubridate)         # for working with dates
 library(colorRamps)
+library(remotes)
 # For the garden data, you need to first install the remotes library, if you haven't already
 # Then, install the gardenR library, if you haven't already. Do this by uncommenting the code below (delete the hashtag) and running it. Then, you should delete this line of code or add the hashtag back so you don't reinstall each time.
 # `remotes::install_github("llendway/gardenR")
@@ -44,9 +45,9 @@ I'm going to try to see what the greatest yield crop is over time- which time of
 ```{r}
 garden_harvest_maxbyday <- garden_harvest %>% 
     group_by(date, vegetable) %>% 
-      summarize(veg_total = sum(weight)) %>% 
-        mutate(weight_kg = veg_total/1000) %>% 
-        slice_max(weight_kg, n= 1)
+      summarize(veg_total = sum(weight))  %>% 
+          mutate(weight_kg = veg_total/1000) %>% 
+            slice_max(weight_kg, n= 1)
 ```
 
 The data should now be grouped by the maximum vegetable harvested each day, and the weight harvested.
@@ -65,12 +66,53 @@ The data should now be grouped by the maximum vegetable harvested each day, and 
 
 Instructor's feedback: (copy the feedback from moodle here)
 
+	
+I love this idea - very creative! Because there are so many vegetables, the color legend is tricky to read. I think there might be a couple reasons. So, first, after summarizing your data, use fct_drop() to get rid of any unused vegetable levels. Then, create a 2nd graph that is a barplot with vegetable on the y-axis and the number of times they were the maximum on the x-axis. Eventually you'll add that inside this plot, but for now, it can be separate. Fill the bars by vegetable name but remove the legend and remove it in the orginal graph, too. This new plot will take the place of the original legend, while providing even more information. Add a title that communicates what's in the plot - you may also need a subtitle since it's a bit complex.
+
 ## Graph Week 2
 
 Question I hope to answer: (probably the same as previous week but may change slightly)
+I'm still going to try to look at the what the greatest yield crop is each day, but I'm going to add some clarifications as you suggested. I'm also starting to think about what I could do to expand this question, because I feel like it's a little too simple to work on for the rest of the semester.
 
 ```{r}
+garden_harvest_maxbyday <- garden_harvest %>% 
+  group_by(date, vegetable) %>% 
+  summarize(veg_total = sum(weight))  %>% 
+  mutate(weight_kg = veg_total/1000) %>% 
+  slice_max(weight_kg, n= 1) %>% 
+  ungroup() %>%
+  group_by(vegetable) %>% 
+  mutate(n = n()) %>% 
+  arrange(desc(n))
+garden_harvest_maxbyday
+```
 
+```{r, fig.height = 10, fig.width = 14, fig.alt = "wafdfmkls"}
+  garden_harvest_maxbyday %>% 
+        ggplot(aes(y = weight_kg, x = date)) +
+        geom_col(aes(fill = fct_reorder(vegetable, n)), position = "dodge") +
+        scale_y_continuous(limits = c(0,50),expand = c(0, 0)) +
+        scale_fill_hue() +
+        geom_text(aes(label = vegetable), angle = 90, check_overlap = TRUE, hjust = -.2) +
+        labs(x= "",
+             y = "Weight(kg)" ,
+             fill = "Vegetable")
+
+```
+
+
+```{r}
+garden_harvest %>% 
+  group_by(date, vegetable) %>% 
+  summarize(veg_total = sum(weight))  %>% 
+  mutate(weight_kg = veg_total/1000) %>% 
+  slice_max(weight_kg, n= 1) %>% 
+  ungroup() %>%
+  group_by(vegetable) %>% 
+  summarize(n = n()) %>%
+    ggplot(aes(y = fct_reorder(vegetable, n), x = n)) +
+      geom_col(aes(fill = fct_reorder(vegetable, n))) +
+      scale_fill_hue()
 ```
 
 Instructor's feedback: (copy the feedback from moodle here)
