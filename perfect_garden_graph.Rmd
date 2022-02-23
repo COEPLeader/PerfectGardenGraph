@@ -74,6 +74,7 @@ I love this idea - very creative! Because there are so many vegetables, the colo
 Question I hope to answer: (probably the same as previous week but may change slightly)
 I'm still going to try to look at the what the greatest yield crop is each day, but I'm going to add some clarifications as you suggested. I'm also starting to think about what I could do to expand this question, because I feel like it's a little too simple to work on for the rest of the semester.
 
+So here I had to modify my data set a little bit so that I could order the color assignment by frequency of appearance, which involved adding a mutated count of the number of appearances for any vegetable. Ther ewere issues in getting this data set to work with the next bar graph so I take a similar approach but instead through summarizing.
 ```{r}
 garden_harvest_maxbyday <- garden_harvest %>% 
   group_by(date, vegetable) %>% 
@@ -86,22 +87,24 @@ garden_harvest_maxbyday <- garden_harvest %>%
   arrange(desc(n))
 garden_harvest_maxbyday
 ```
-
-```{r, fig.height = 10, fig.width = 14, fig.alt = "wafdfmkls"}
+Also, I added labels, which could use a little bit of cleaning up but still add to the comprehensibility of the graph.
+```{r, fig.height = 10, fig.width = 14, fig.alt = "Graph showing the most harvested vegetable on each day, and the weight harvested in kg. There are notable harvests of pumpkins in September, many middling harvests of tomatoes, and a general increasing trend in the harvest weight of the maximum vegetable harvested, until the end of September"}
   garden_harvest_maxbyday %>% 
         ggplot(aes(y = weight_kg, x = date)) +
-        geom_col(aes(fill = fct_reorder(vegetable, n)), position = "dodge") +
+        geom_col(aes(fill = fct_rev(fct_reorder(vegetable, n))), position = "dodge") +
         scale_y_continuous(limits = c(0,50),expand = c(0, 0)) +
         scale_fill_hue() +
         geom_text(aes(label = vegetable), angle = 90, check_overlap = TRUE, hjust = -.2) +
         labs(x= "",
              y = "Weight(kg)" ,
-             fill = "Vegetable")
+             fill = "",
+             title = "Greatest yield vegetable by day",
+             caption = "There are notable harvests of pumpkins in September and many middling harvests of tomatoes through the latter part of the summer")
 
 ```
 
-
-```{r}
+Here's the additional graph I made, to show the frequency of appearance for each vegetable. 
+```{r, fig.height = 10, fig.width = 8}
 garden_harvest %>% 
   group_by(date, vegetable) %>% 
   summarize(veg_total = sum(weight))  %>% 
@@ -111,8 +114,12 @@ garden_harvest %>%
   group_by(vegetable) %>% 
   summarize(n = n()) %>%
     ggplot(aes(y = fct_reorder(vegetable, n), x = n)) +
-      geom_col(aes(fill = fct_reorder(vegetable, n))) +
-      scale_fill_hue()
+      geom_col(aes(fill = fct_rev(fct_reorder(vegetable, n)))) +
+      scale_fill_hue() +
+      labs(x = "",
+           y = "Vegetable",
+           fill = "",
+           title = "Frequency of greatest daily yield of all vegetables")
 ```
 
 Instructor's feedback: (copy the feedback from moodle here)
