@@ -19,6 +19,7 @@ library(ggthemes)
 library(lubridate)         # for working with dates
 library(colorRamps)
 library(remotes)
+library(plotly)
 # For the garden data, you need to first install the remotes library, if you haven't already
 # Then, install the gardenR library, if you haven't already. Do this by uncommenting the code below (delete the hashtag) and running it. Then, you should delete this line of code or add the hashtag back so you don't reinstall each time.
 # `remotes::install_github("llendway/gardenR")
@@ -132,40 +133,52 @@ garden_harvest_maxbyday <- garden_harvest %>%
   summarize(veg_total = sum(weight))  %>% 
   mutate(weight_kg = veg_total/1000) %>% 
   slice_max(weight_kg, n= 1) %>% 
-  ungroup() %>%
+  ungroup() %>% 
   group_by(vegetable) %>% 
   mutate(n = n()) %>% 
-  arrange(desc(n))
+  arrange(desc(n)) %>% 
+  mutate(weekday = wday(date, label = TRUE))
 garden_harvest_maxbyday
 ```
 
 ```{r, fig.height = 10, fig.width = 14, fig.alt = "wafdfmkls"}
-  garden_harvest_maxbyday %>% 
+  maxbyday_plot <- garden_harvest_maxbyday %>% 
         ggplot(aes(y = weight_kg, x = date)) +
-        geom_col(aes(fill = fct_reorder(vegetable, n)), position = "dodge") +
+        geom_col(aes(fill = fct_reorder(vegetable, n), label = vegetable, group = weekday), position = "dodge") +
         scale_y_continuous(limits = c(0,50),expand = c(0, 0)) +
         scale_fill_hue() +
-        geom_text(aes(label = vegetable), angle = 90, check_overlap = TRUE, hjust = -.2) +
+        #geom_text(aes(label = vegetable), angle = 90, check_overlap = TRUE, hjust = -.2) +
         labs(x= "",
              y = NULL,
+             title = "Weight (kg) of most bountiful harvest by day",
              fill = NULL) +
-        theme(legend.position = element_blank())
-
+        theme(legend.position ="none",
+              panel.grid.major.x = element_blank())
+  
+  ggplotly(maxbyday_plot,
+           tooltip = c("vegetable", "date", "weight_kg", "veg_total", "weekday"))
 ```
 
-
+I wanted to add plotly features to this graph as well but it would never allow interaction when I tried. Is there some way I could fix that? Also, is ther some way I can change the label that appears in the tooltip?
 ```{r}
-garden_harvest %>% 
-  group_by(date, vegetable) %>% 
-  summarize(veg_total = sum(weight))  %>% 
-  mutate(weight_kg = veg_total/1000) %>% 
-  slice_max(weight_kg, n= 1) %>% 
-  ungroup() %>%
-  group_by(vegetable) %>% 
-  summarize(n = n()) %>%
-    ggplot(aes(y = fct_reorder(vegetable, n), x = n)) +
-      geom_col(aes(fill = fct_reorder(vegetable, n))) +
-      scale_fill_hue()
+  veg_most_max <- garden_harvest %>% 
+    group_by(date, vegetable) %>% 
+    summarize(veg_total = sum(weight))  %>% 
+    mutate(weight_kg = veg_total/1000) %>% 
+    slice_max(weight_kg, n= 1) %>% 
+    ungroup() %>%
+    group_by(vegetable) %>% 
+    summarize(n = n()) %>%
+      ggplot(aes(y = fct_reorder(vegetable, n), x = n)) +
+        geom_col(aes(fill = fct_reorder(vegetable, n))) +
+        scale_fill_hue() +
+        scale_x_continuous(expand = c(0, 0)) +
+    theme(legend.position ="none",
+          panel.grid.major.y = element_blank()) +
+    labs(x = "Count of '#1' harvests",
+         y= NULL)
+    
+    veg_most_max
 ```
 
 Instructor's feedback: (copy the feedback from moodle here)
