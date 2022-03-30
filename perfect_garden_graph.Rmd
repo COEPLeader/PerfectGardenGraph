@@ -88,7 +88,7 @@ garden_harvest_maxbyday <- garden_harvest %>%
 garden_harvest_maxbyday
 ```
 
-```{r, fig.height = 10, fig.width = 14, fig.alt = "wafdfmkls"}
+```{r, fig.height = 10, fig.width = 14, fig.alt = ""}
   garden_harvest_maxbyday %>% 
         ggplot(aes(y = weight_kg, x = date)) +
         geom_col(aes(fill = fct_reorder(vegetable, n)), position = "dodge") +
@@ -140,10 +140,13 @@ garden_harvest_maxbyday <- garden_harvest %>%
 garden_harvest_maxbyday
 ```
 
-```{r, fig.height = 10, fig.width = 14, fig.alt = "wafdfmkls"}
+```{r, fig.height = 10, fig.width = 14, fig.alt = "Graph of most harvested vegetable each day. Notably, the pumpkins had a small numer of high yield days later in the season, while the tomatoes consistently performed well over a longer period of time. "}
   maxbyday_plot <- garden_harvest_maxbyday %>% 
         ggplot(aes(y = weight_kg, x = date)) +
-        geom_col(aes(fill = fct_reorder(vegetable, n), label = vegetable, group = weekday), position = "dodge") +
+        geom_col(aes(fill = fct_reorder(vegetable, n),
+                     label = vegetable,
+                     group = weekday),
+                 position = "dodge") +
         scale_y_continuous(limits = c(0,50),expand = c(0, 0)) +
         scale_fill_hue() +
         #geom_text(aes(label = vegetable), angle = 90, check_overlap = TRUE, hjust = -.2) +
@@ -155,7 +158,11 @@ garden_harvest_maxbyday
               panel.grid.major.x = element_blank())
   
   ggplotly(maxbyday_plot,
-           tooltip = c("vegetable", "date", "weight_kg", "veg_total", "weekday"))
+           tooltip = c("vegetable",
+                       "date", 
+                       "weight_kg",
+                       "veg_total",
+                       "weekday"))
 ```
 
 I wanted to add plotly features to this graph as well but it would never allow interaction when I tried. Is there some way I could fix that? Also, is ther some way I can change the label that appears in the tooltip?
