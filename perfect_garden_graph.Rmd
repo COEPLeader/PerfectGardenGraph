@@ -166,7 +166,7 @@ garden_harvest_maxbyday
 ```
 
 I wanted to add plotly features to this graph as well but it would never allow interaction when I tried. Is there some way I could fix that? Also, is ther some way I can change the label that appears in the tooltip?
-```{r}
+```{r, fig.alt = "A bar graph displaying how often a vegetable/fruit was the greatest-yield contributor in a day. The tomatoes were the greatest yield the most often, with over 35 days as highest harvest. "}
   veg_most_max <- garden_harvest %>% 
     group_by(date, vegetable) %>% 
     summarize(veg_total = sum(weight))  %>% 
